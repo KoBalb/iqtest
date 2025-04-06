@@ -22,6 +22,5 @@ class Question(models.Model):
 
     def __str__(self):
         return f"Question #{self.id}"
-
     class Meta:
         verbose_name = "Питання"

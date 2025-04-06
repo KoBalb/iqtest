@@ -8,4 +8,3 @@ from .serializers import QuestionSerializer
 class QuestionApiView(generics.ListCreateAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    http_method_names = ['get']

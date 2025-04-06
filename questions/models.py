@@ -24,3 +24,22 @@ class Question(models.Model):
         return f"Question #{self.id}"
     class Meta:
         verbose_name = "Питання"
+
+class Result(models.Model):
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    gender = models.CharField(max_length=1,  choices=GENDER_CHOICES)
+    AGE_CHOICES = (
+        (1, '18-24'),
+        (2, '25-34'),
+        (3, '35-44'),
+        (4, '45-60'),
+        (5, '60+'),
+    )
+    correct_option = models.PositiveSmallIntegerField(choices=AGE_CHOICES)
+    email = models.EmailField(max_length=254)
+    score = models.PositiveSmallIntegerField()
+    time_test =  models.PositiveSmallIntegerField()
+    date = models.DateTimeField(auto_now_add=True)

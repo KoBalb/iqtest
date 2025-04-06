@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
+from dotenv import load_dotenv
 from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, ".env")) # для роботи з .env файлами
 
 import rest_framework
 
@@ -22,10 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-19t-&&_^ztr(0#y!a0pcc%vm@s1-*+zvh2%n^d!1lt4-xnb0mq'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -33,6 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,16 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'questions',
-    'jazzmin',
 ]
 
-JAZZMIN_SETTINGS = {
-    "site_title": "My Admin",
-    "site_header": "My Admin Panel",
-    "site_brand": "My Site",
-    "welcome_sign": "Welcome to My Admin Panel",
-    "show_ui_builder": True,
-}
 STATIC_URL = '/static/'
 
 # Директорія для збереження зібраних статичних файлів (для продакшну)
@@ -138,3 +135,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "IQ Тест Админка",
+    "site_header": "IQ Тест",
+    "welcome_sign": "Добро пожаловать в IQ Game",
+    "copyright": "© 2025",
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "order_with_respect_to": ["auth", "your_app"],
+
+    # Иконки моделей
+    "icons": {
+        "auth.User": "fas fa-user",
+        "your_app.Question": "fas fa-question",
+    },
+}

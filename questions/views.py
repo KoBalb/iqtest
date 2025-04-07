@@ -1,8 +1,8 @@
 from django.forms import model_to_dict
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics, status
 from .models import Question, Result
-from .serializers import QuestionSerializer
+from .serializers import QuestionSerializer, ResultSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.mail import send_mail
@@ -28,16 +28,10 @@ class EmailSendView(APIView):
             return Response({'error': str(e)}, status=500)
 
 
-
-
-
 class ResultAPIView(APIView):
     def post(self, request):
-        post_new = Result.objects.create(
-            gender=request.data['gender'],
-            age=request.data['age'],
-            email=request.data['email'],
-            score=request.data['score'],
-            time_test=request.data['time_test']
-        )
-        return Response({'result': model_to_dict(post_new)})
+        serializer = ResultSerializer(data=request.data)
+        if serializer.is_valid():
+            post_new = serializer.save()
+            return Response({'result': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

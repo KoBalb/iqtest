@@ -1,6 +1,8 @@
 from django.forms import model_to_dict
 from django.shortcuts import render
 from rest_framework import generics, status
+
+from iqtest import settings
 from .models import Question, Result
 from .serializers import QuestionSerializer, ResultSerializer
 from rest_framework.views import APIView
@@ -13,25 +15,19 @@ class QuestionApiView(generics.ListCreateAPIView):
     serializer_class = QuestionSerializer
 
 
-class EmailSendView(APIView):
-    def post(self, request):
-        try:
-            send_mail(
-                subject='Привет с Django!',
-                message='Это тестовое письмо 📨',
-                from_email='iqt53416@gmail.com',  # Твоя почта (должна совпадать с EMAIL_HOST_USER)
-                recipient_list=['artem.kovalyk79@gmail.com'],  # <-- ЗАХАРДКОЖЕННЫЙ EMAIL
-                fail_silently=False,
-            )
-            return Response({'message': 'Письмо отправлено!'})
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
-
-
 class ResultAPIView(APIView):
     def post(self, request):
         serializer = ResultSerializer(data=request.data)
         if serializer.is_valid():
             post_new = serializer.save()
+            send_mail(
+                subject='IQ test completed!',
+                message=f"You took the IQ test and your result: {post_new.score}. Congratulations!",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[post_new.email],
+                fail_silently=False,
+            )
+
             return Response({'result': serializer.data}, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

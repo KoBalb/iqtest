@@ -12,4 +12,4 @@ admin.site.register(Question, QuestionAdmin)
 
 @admin.register(Result)
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ('email', 'score', 'time_test', 'gender', 'age')
+    list_display = ('email', 'score', 'time_test', 'gender', 'age', 'date')

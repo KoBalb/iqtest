@@ -38,8 +38,11 @@ class Result(models.Model):
         (4, '45-60'),
         (5, '60+'),
     )
-    correct_option = models.PositiveSmallIntegerField(choices=AGE_CHOICES)
+    age = models.PositiveSmallIntegerField(choices=AGE_CHOICES)
     email = models.EmailField(max_length=254)
     score = models.PositiveSmallIntegerField()
     time_test =  models.PositiveSmallIntegerField()
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.email} — {self.score}"

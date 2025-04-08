@@ -36,6 +36,10 @@ class ResultAPIView(APIView):
 
 
 
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Transaction
+
 class BraintreePaymentView(APIView):
     def post(self, request):
         nonce = request.data.get("payment_method_nonce")
@@ -48,15 +52,24 @@ class BraintreePaymentView(APIView):
 
         if result.is_success:
             try:
-                # ✅ Получаем payment_method_token из credit_card
+                # Получаем payment_method_token из credit_card
                 payment_method_token = result.transaction.credit_card['token']
 
                 subscription_result = self.create_subscription(payment_method_token)
 
                 if subscription_result.is_success:
+                    # Записываем транзакцию в БД
+                    transaction_record = Transaction.objects.create(
+                        transaction_id=result.transaction.id,
+                        subscription_id=subscription_result.subscription.id,
+                        amount=amount,
+                        payment_method_token=payment_method_token
+                    )
+
                     return Response({
                         "transaction_id": result.transaction.id,
-                        "subscription_id": subscription_result.subscription.id
+                        "subscription_id": subscription_result.subscription.id,
+                        "transaction_record_id": transaction_record.id  # ID записи в БД
                     })
                 else:
                     return Response({
@@ -76,13 +89,13 @@ class BraintreePaymentView(APIView):
             "payment_method_nonce": nonce,
             "options": {
                 "submit_for_settlement": True,
-                "store_in_vault": True
+                "store_in_vault": True  # Сохраняем платёжный метод для последующих операций
             }
         })
 
     def create_subscription(self, payment_method_token):
-        # ⚠️ trial берётся из плана
+        # Создаём подписку, используя сохранённый token
         return gateway.subscription.create({
             "payment_method_token": payment_method_token,
-            "plan_id": "vnpp"
+            "plan_id": "vnpp"  # ID вашего плана
         })

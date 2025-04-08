@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Question
+from .models import Question, Transaction
 # Register your models here.
 from django.contrib import admin
 from .models import Question, Result
@@ -13,3 +13,8 @@ admin.site.register(Question, QuestionAdmin)
 @admin.register(Result)
 class ResultAdmin(admin.ModelAdmin):
     list_display = ('email', 'score', 'time_test', 'gender', 'age', 'date')
+
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('transaction_id', 'subscription_id', 'amount', 'payment_method_token', 'created_at')
+
+admin.site.register(Transaction, TransactionAdmin)

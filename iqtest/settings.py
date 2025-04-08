@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 
-
+import braintree
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -47,6 +47,14 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Application definition
+gateway = braintree.BraintreeGateway(
+  braintree.Configuration(
+    environment=braintree.Environment.Sandbox, #перед выгрузкой выставить braintree.Environment.Production,
+    merchant_id= os.getenv('merchant_id'),
+    public_key= os.getenv('public_key'),
+    private_key= os.getenv('private_key')
+  )
+)
 
 INSTALLED_APPS = [
     'jazzmin',

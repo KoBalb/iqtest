@@ -1,18 +1,11 @@
-import braintree
-from django.forms import model_to_dict
-from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics
 from iqtest import settings
 from .braintree_config import gateway
-from .models import Question, Result
+from .models import Question
 from .serializers import QuestionSerializer, ResultSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from django.core.mail import send_mail
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-from .braintree_config import BraintreeConfig
 # Create your views here.
 class QuestionApiView(generics.ListCreateAPIView):
     queryset = Question.objects.all()

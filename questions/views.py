@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import generics
 from iqtest import settings
 from .braintree_config import gateway
@@ -36,7 +38,7 @@ from .models import Transaction
 class BraintreePaymentView(APIView):
     def post(self, request):
         nonce = request.data.get("payment_method_nonce")
-        amount = request.data.get("amount")
+        amount = os.getenv("amount")
 
         if not nonce or not amount:
             return Response({"error": "Missing nonce or amount"}, status=400)
@@ -71,7 +73,7 @@ class BraintreePaymentView(APIView):
                     }, status=400)
 
             except Exception as e:
-                return Response({"error": f"Token error: {str(e)}"}, status=500)
+                return Response({"error": f"Token error: {str(e)}"}, status=400)
 
         else:
             return Response({"error": str(result.message)}, status=400)

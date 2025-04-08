@@ -7,5 +7,5 @@ from questions.views import QuestionApiView, ResultAPIView, BraintreePaymentView
 urlpatterns = [
     path('questions/', QuestionApiView.as_view()),
     path("result/", ResultAPIView.as_view()),
-    path('pay/', BraintreePaymentView.as_view(), name='braintree'),
+    path('pay/', BraintreePaymentView.as_view()),
 ]

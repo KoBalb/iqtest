@@ -3,7 +3,7 @@ import os
 from rest_framework import generics
 from iqtest import settings
 from .braintree_config import gateway
-from .models import Question
+from .models import Question, Result
 from .serializers import QuestionSerializer, ResultSerializer
 from django.core.mail import send_mail
 from rest_framework.views import APIView
@@ -19,14 +19,7 @@ class ResultAPIView(APIView):
         serializer = ResultSerializer(data=request.data)
         if serializer.is_valid():
             post_new = serializer.save()
-            send_mail(
-                subject='IQ test completed!',
-                message=f"You took the IQ test and your result: {post_new.score}. Congratulations!",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[post_new.email],
-                fail_silently=False,
-            )
-            return Response(status=status.HTTP_201_CREATED)
+            return Response({"result_id": post_new.id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -39,6 +32,7 @@ class BraintreePaymentView(APIView):
     def post(self, request):
         nonce = request.data.get("payment_method_nonce")
         amount = os.getenv("amount")
+        result_id = request.data.get("result_id")
 
         if not nonce or not amount:
             return Response({"error": "Missing nonce or amount"}, status=400)
@@ -60,12 +54,24 @@ class BraintreePaymentView(APIView):
                         amount=amount,
                         payment_method_token=payment_method_token
                     )
+                    try:
+                        result_obj = Result.objects.get(id=result_id)
+                        send_mail(
+                            subject='IQ test completed!',
+                            message=f"You took the IQ test and your result: {result_obj.score}. Congratulations!",
+                            from_email=settings.EMAIL_HOST_USER,
+                            recipient_list=[result_obj.email],
+                            fail_silently=False,
+                        )
+                    except Result.DoesNotExist:
+                        pass
 
                     return Response({
                         "transaction_id": result.transaction.id,
                         "subscription_id": subscription_result.subscription.id,
                         "transaction_record_id": transaction_record.id  # ID записи в БД
                     })
+
                 else:
                     return Response({
                         "error": "Failed to create subscription",
@@ -92,5 +98,7 @@ class BraintreePaymentView(APIView):
         # Создаём подписку, используя сохранённый token
         return gateway.subscription.create({
             "payment_method_token": payment_method_token,
-            "plan_id": "vnpp"  # ID вашего плана
+            "plan_id": "666"  # ID вашего плана
         })
+
+
